@@ -7,8 +7,7 @@ palm.configure(api_key="AIzaSyA1Yg1izZU38pyHf40eOa8zWX164ZXbdPE")
 # Defining Model of use
 model_name= "models/chat-bison-001"
 
-# Function to translate Code
-
+# Function to translate code
 def translate_code(code_snippet, target_language):
     prompt = f"Translate the following code to {target_language}:\n\n{code_snippet}"
     response = palm.chat(
@@ -17,10 +16,16 @@ def translate_code(code_snippet, target_language):
     )
     return response.candidates[0]["content"]
 
-
+# Function to explain code
+def explain_code(code_snippet):
+    prompt = f"Explain the following code:\n\n{code_snippet}"
+    response = palm.chat(
+        model = model_name,
+        messages = [prompt]
+    )
+    return response.candidates[0]["content"]
 
 # Streamlit application
-
 def main():
     st.title("CodeXchange: AI-Powered Code Translation Tool")
 
@@ -58,10 +63,18 @@ def main():
                     translated_code = translate_code(source_code_snippet, target_language)
                     st.success("Code translation successful!")
                     st.code(translated_code, language= target_language.lower())
+                    explanation = explain_code(source_code_snippet)
+                    st.markdown(f"**Explanation:** {explanation}")
+                    st.download_button(
+                        label="Download Translated Code",
+                        data=translated_code,
+                        file_name=f"translated_code_{target_language.lower()}.txt",
+                        mime="text/plain"
+                    )
                 except Exception as e:
                     st.error(f"Error Translating code: {e}")   
         else:
             st.error("Please enter a code snippet.")
-                
+
 if __name__ == "__main__":
     main()
